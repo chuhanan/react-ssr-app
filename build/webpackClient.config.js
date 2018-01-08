@@ -45,8 +45,12 @@ if (isDev) {
     },
     //处理由于output中使用了public path引起的问题
     publicPath: '/public',
+    //页面错误404跳转到首页
     historyApiFallback: {
       index: '/public/index.html'
+    },
+    proxy:{
+      "/api": "http://localhost:3333"
     }
   }
   config.plugins.push(new webpack.HotModuleReplacementPlugin())

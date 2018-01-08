@@ -6,7 +6,7 @@ const serverConfig = require('../../build/webpackServer.config')
 const MemoryFs = require('memory-fs')
 //rss
 const ReactDomServer = require('react-dom/server')
-//因文件是用mfs读取的放在内存中,所以要代理处理文件路径
+//接口代理
 const proxy = require('http-proxy-middleware')
 
 const getTemplate = function() {
@@ -24,6 +24,7 @@ let serverBundle
 
 const serverCompiler = webpack(serverConfig)
 //创建一个内存文件流
+//因文件是用mfs读取的放在内存中,所以要代理处理文件路径
 const mfs = new MemoryFs
 //把webpack的输出文件指向这个流
 serverCompiler.outputFileSystem = mfs

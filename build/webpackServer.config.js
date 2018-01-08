@@ -1,8 +1,12 @@
 const path = require('path')
 //生成html模板的插件,这样就不用自己写html模版了 (*^__^*)
 const HTMLWebpackPlugin = require('html-webpack-plugin')
+//合并webpack配置
+const webpackMerge = require('webpack-merge')
+const webpack = require('webpack');
+const baseConfig = require('./webpack.base.config')
 
-module.exports = {
+module.exports = webpackMerge(baseConfig, {
   //服务端渲染配置环境
   target: "node",
   entry: {
@@ -17,18 +21,9 @@ module.exports = {
     //使用最新的commjs模块规范
     libraryTarget: 'commonjs2'
   },
-  module: {
-    rules: [
-      {
-        test: /.(jsx|js)$/,
-        loader: 'babel-loader',
-        exclude: /node_modules/
-      }
-    ]
-  },
   plugins: [
     new HTMLWebpackPlugin({
       template: path.join(__dirname, '../client/template.html')
     })
   ]
-}
+})
