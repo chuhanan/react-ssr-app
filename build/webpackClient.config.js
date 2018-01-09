@@ -20,6 +20,10 @@ let config = webpackMerge(baseConfig, {
   plugins: [
     new HTMLWebpackPlugin({
       template: path.join(__dirname, '../client/template.html')
+    }),
+    new HTMLWebpackPlugin({
+      template: "!!ejs-compiled-loader!"+path.join(__dirname, '../client/server.template.ejs'),
+      filename: "server.ejs"
     })
   ]
 })
@@ -49,6 +53,7 @@ if (isDev) {
     historyApiFallback: {
       index: '/public/index.html'
     },
+    //本地请求代理到服务器的环境
     proxy:{
       "/api": "http://localhost:3333"
     }

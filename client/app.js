@@ -6,12 +6,14 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './views/App'
 //热更新需要的包装的组件
 import { AppContainer } from 'react-hot-loader'
-import appState from './store/app-state'
+import AppState from './store/app-state'
+
+const initialState = window.__INITIAL_STATE__ || {}  //eslint-disable-line
 
 const render = (Component) => {
-  ReactDom.render(
+  ReactDom.hydrate(
     <AppContainer>
-      <Provider appState={appState}>
+      <Provider appState={new AppState(initialState)}>
         <BrowserRouter>
           <Component />
         </BrowserRouter>

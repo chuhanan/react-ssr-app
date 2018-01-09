@@ -21,6 +21,8 @@ module.exports = webpackMerge(baseConfig, {
     //使用最新的commjs模块规范
     libraryTarget: 'commonjs2'
   },
+  //在服务端打包的时候不需要打包第三方库, 只需要加载业务代码即可
+  externals: Object.keys(require("../package.json").dependencies),
   plugins: [
     new HTMLWebpackPlugin({
       template: path.join(__dirname, '../client/template.html')

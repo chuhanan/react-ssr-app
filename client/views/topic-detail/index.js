@@ -4,7 +4,7 @@ class TopicDetail extends Component {
   render() {
     return (
       <div>
-        TopicDetail
+        <h1>TopicDetail</h1>
       </div>
     );
   }

@@ -9,8 +9,9 @@ const session = require('express-session')
 const favicon = require('serve-favicon')
 //在控制台输出高亮带颜色的库
 const chalk = require('chalk')
-//react支持的服务端渲染的模块
-const ReactSSR = require('react-dom/server')
+// //react支持的服务端渲染的模块
+// const ReactSSR = require('react-dom/server')
+const serverRender = require('./util/server-render')
 
 
 const isDev = process.env.NODE_ENV === "development"
@@ -40,18 +41,23 @@ app.use('/public', express.static(path.join(__dirname, '../dist')))
 
 if (!isDev){
   //在node端打包好的react项目
-  const serverEntry = require('../dist/server-entry').default
+  const serverEntry = require('../dist/server-entry')
   //这里为什么要用.default
   // commonjs规范处理了如果组件是 export default 出去的组件需要.de来处理 否则获取不到组件
-  const template = fs.readFileSync(path.join(__dirname, '../dist/index.html'), 'utf8')
-  app.get('*', function (req, res) {
-    const appString = ReactSSR.renderToString(serverEntry)
-    res.send(template.replace('<!-- app -->', appString))
+  const template = fs.readFileSync(path.join(__dirname, '../dist/server.ejs'), 'utf8')
+  app.get('*', function (req, res, next) {
+    serverRender(serverEntry, template, req, res).catch(next)
   })
 }else{
   const devStatic = require('./util/dev-static')
   devStatic(app)
 }
+
+//有4个参数的中间件第一个是 error
+app.use(function(error, req, res, next) {
+  console.log(error)
+  res.status(500).send(error)
+})
 
 app.listen(3333, function () {
   console.log(chalk.cyan('server has run at port 3333'))

@@ -4,14 +4,12 @@ const path = require('path')
 const serverConfig = require('../../build/webpackServer.config')
 //把输出的文件放在内存中, 加快处理速度
 const MemoryFs = require('memory-fs')
-//rss
-const ReactDomServer = require('react-dom/server')
-//接口代理
+//请求代理
 const proxy = require('http-proxy-middleware')
-
+const serverRender = require('./server-render')
 const getTemplate = function() {
   return new Promise((res, rej) => {
-    axios.get('http://localhost:8888/public/index.html')
+    axios.get('http://localhost:8888/public/server.ejs')
       .then(response => {
         res(response.data)
       })
@@ -19,7 +17,21 @@ const getTemplate = function() {
   })
 }
 
-const Module = module.constructor
+// const Module = module.constructor
+const NativeModule = require('module')
+const vm = require('vm')
+const getModuleFormString = (bundle, filename) => {
+  const m = { exports: {} }
+  const wrapper = NativeModule.wrap(bundle)
+  const script = new vm.Script(wrapper, {
+    filename: filename,
+    displayErrors: true
+  })
+  const result = script.runInThisContext()
+  result.call(m.exports, m.exports, require, m)
+  return m
+}
+
 let serverBundle
 
 const serverCompiler = webpack(serverConfig)
@@ -36,10 +48,13 @@ serverCompiler.watch({}, (err, stats) => {
   stats.warnings.forEach(warnings => console.warn(warnings))
   const bundlePath = path.join(serverConfig.output.path, serverConfig.output.filename)
   const bundle = mfs.readFileSync(bundlePath, 'utf-8')
-  const m  = new Module()
-  m._compile(bundle, 'server-entry.js')
-  //如果不用exports可能会没有内容
-  serverBundle = m.exports.default
+  // const m  = new Module()
+  // m._compile(bundle, 'server-entry.js')
+  const m = getModuleFormString(bundle, 'server-entry.js')
+  //如果不用 exports 可能会没有内容
+  serverBundle = m.exports
+  //在 server-entry 中导出的 createStoreMap 方法
+  // createStoreMap = m.exports.createStoreMap
 })
 
 module.exports = function(app) {
@@ -47,9 +62,11 @@ module.exports = function(app) {
     target: 'http://localhost:8888'
   }))
   app.get('*', function(req, res, next){
+    if(!serverBundle) {
+      return res.send("webpack 正在编译...")
+    }
     getTemplate().then(template => {
-      const str = ReactDomServer.renderToString(serverBundle)
-      res.send(template.replace('<!-- app -->', str))
-    })
+      return serverRender(serverBundle, template, req, res)
+    }).catch(next)
   })
 }
