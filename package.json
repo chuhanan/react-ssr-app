@@ -1,7 +1,7 @@
 {
   "name": "z-node",
   "version": "1.0.0",
-  "description": "",
+  "description": "rss",
   "main": "index.js",
   "scripts": {
     "build:client": "webpack --config build/webpackClient.config.js",
