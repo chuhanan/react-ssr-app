@@ -6,7 +6,7 @@ import {
 } from 'mobx'
 
 export default class AppState {
-  constructor({ count, name } = { name: "zzz", count: 1 }) {
+  constructor({ count, name } = { count: 1, name: "2222" }) {
     this.name = name
     this.count = count
   }
@@ -29,7 +29,7 @@ export default class AppState {
   }
 }
 
-const appState = new AppState()
+// const appState = new AppState()
 
 // setInterval(() => {
 //   appState.add()

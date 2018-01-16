@@ -5,6 +5,8 @@ const webpack = require('webpack');
 const baseConfig = require('./webpack.base.config')
 //生成html模板的插件,这样就不用自己写html模版了 (*^__^*)
 const HTMLWebpackPlugin = require('html-webpack-plugin')
+//给生产环境的模块命名 避免相互影响
+const NamedAllModulesPlugin = require('name-all-modules-plugin')
 
 const isDev = process.env.NODE_ENV === "development"
 
@@ -59,6 +61,48 @@ if (isDev) {
     }
   }
   config.plugins.push(new webpack.HotModuleReplacementPlugin())
+} else {
+  config.entry = {
+    app: path.join(__dirname, '../client/app.js'),
+    vendor: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'axios',
+      'prop-types',
+      'mobx',
+      'mobx-react'
+    ]
+  }
+  //加上 chunkhash 之后每个 第三方的库都会有单独的 hash
+  config.output.filename = '[name].[chunkhash].js'
+  config.plugins.push(
+    //压缩
+    new webpack.optimize.UglifyJsPlugin(),
+    //通用的 vendor 里面的 js 压缩
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'vendor'
+    }),
+    //非通用部分无限制压缩
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'manifest',
+      minChunks: Infinity
+    }),
+    //给每个异步加载的模块进行重新命名,互不影响
+    new webpack.NamedModulesPlugin(),
+    new NamedAllModulesPlugin(),
+    new webpack.NamedChunksPlugin(chunk => {
+      if (chunk.name) {
+        return chunk.name
+      }
+      return chunk.mapModules(m => path.relative(m.context, m.request)).join('_')
+    }),
+    new webpack.DefinePlugin({
+      'process.env': {
+        'NODE_ENV': JSON.stringify('production')
+      }
+    })
+  )
 }
 
 module.exports = config
