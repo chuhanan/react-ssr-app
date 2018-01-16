@@ -61,6 +61,6 @@ app.use(function(error, req, res, next) {
 
 const host = process.env.HOST || '0.0.0.0'
 const port = process.env.PORT || 3333
-app.listen(host, port, function () {
+app.listen(port, host, function () {
   console.log(chalk.cyan('server has run at port 3333'))
 })
