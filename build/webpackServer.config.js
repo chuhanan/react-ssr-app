@@ -26,6 +26,9 @@ module.exports = webpackMerge(baseConfig, {
   plugins: [
     new HTMLWebpackPlugin({
       template: path.join(__dirname, '../client/template.html')
+    }),
+    new webpack.DefinePlugin({
+      'process.env.API_BASE': 'http://127.0.0.1: 3333'
     })
   ]
 })

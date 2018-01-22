@@ -9,7 +9,7 @@ const Helmet = require('react-helmet').default
 //rss
 const ReactDomServer = require('react-dom/server')
 // material-ui 配置
-const SheetsRegistry = require('react-jss/lib/jss').SheetsRegistry
+const SheetsRegistry = require('react-jss/lib').SheetsRegistry
 const create = require('jss').create
 const preset = require('jss-preset-default').default
 const createMuiTheme = require('material-ui/styles').createMuiTheme
@@ -42,7 +42,8 @@ module.exports = function (bundle, template, req, res) {
     const sheetRegistry = new SheetsRegistry()
     const jss = create(preset())
     const cgc = createGenerateClassName()
-    const app1 = createApp(stores, context, sheetRegistry, jss, theme, cgc, req.url)
+
+    const app1 = createApp(stores, context, sheetRegistry, cgc, theme, req.url)
     //异步处理组件刷新
     asyncBootstrap(app1).then(() => {
       if(context.url){
@@ -56,6 +57,8 @@ module.exports = function (bundle, template, req, res) {
       const str = ReactDomServer.renderToString(app1)
       //获取title
       const helmet = Helmet.rewind()
+      // console.log('1', sheetRegistry.toString(), str)
+
       //获取ejs渲染完成之后的完整的html
       const html = ejs.render(template, {
         appString: str,

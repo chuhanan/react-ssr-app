@@ -37,6 +37,7 @@
     "arrow-parens": [0],
     "react/require-default-props": [0],
     "arrow-body-style": [0],
-    "prefer-destructuring": [0]
+    "prefer-destructuring": [0],
+    "global-require": [0]
   }
 }

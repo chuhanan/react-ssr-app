@@ -36,8 +36,7 @@ app.use(session({
 app.use('/api/user', require('./util/handle-login'))
 //处理其他的用户的api
 app.use('/api', require('./util/proxy-api'))
-//托管静态文件
-app.use('/public', express.static(path.join(__dirname, '../dist')))
+
 
 if (!isDev){
   //在node端打包好的react项目
@@ -45,6 +44,8 @@ if (!isDev){
   //这里为什么要用.default
   // commonjs规范处理了如果组件是 export default 出去的组件需要.de来处理 否则获取不到组件
   const template = fs.readFileSync(path.join(__dirname, '../dist/server.ejs'), 'utf8')
+  //托管静态文件
+app.use('/public', express.static(path.join(__dirname, '../dist')))
   app.get('*', function (req, res, next) {
     serverRender(serverEntry, template, req, res).catch(next)
   })

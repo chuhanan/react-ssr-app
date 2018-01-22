@@ -59,6 +59,7 @@ render(createApp(App))
 
 if (module.hot) {
   module.hot.accept('./views/App', () => {
+    // const NextApp = require('./views/App').default
     render(createApp(App))
   })
 }
